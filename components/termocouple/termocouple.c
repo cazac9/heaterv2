@@ -7,11 +7,11 @@
 #include "esp_log.h"
 
 
-#define TAG "termocouple"
+#define TAG "TERMOCOUPLE"
 
 static void heater_termocouple_module_task(void *pvParams)
 {
-  ESP_LOGI(TAG, "TERMOCOUPLE module task starting");
+  ESP_LOGI(TAG, "module task starting");
 
   spi_device_handle_t spi = (spi_device_handle_t) pvParams;
 
@@ -35,7 +35,7 @@ static void heater_termocouple_module_task(void *pvParams)
       ESP_LOGE(TAG, "Sensor is not connected\n");
     else {
       res >>= 3;
-      ESP_LOGI(TAG, "TERMOCOUPLE module: temp=%f", (res * 0.25));
+      ESP_LOGI(TAG, "temp=%f", (res * 0.25));
     }
 
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -44,7 +44,7 @@ static void heater_termocouple_module_task(void *pvParams)
 
 void heater_termocouple_module_init()
 {
-  ESP_LOGI(TAG, "TERMOCOUPLE module init starting");
+  ESP_LOGI(TAG, "init starting");
 
   spi_device_handle_t spi;
   esp_err_t ret;
@@ -73,5 +73,5 @@ void heater_termocouple_module_init()
 
   xTaskCreate(&heater_termocouple_module_task, "temperature_task", 4096, spi, 5, NULL);
 
-  ESP_LOGI(TAG, "TERMOCOUPLE module init started");
+  ESP_LOGI(TAG, "init started");
 }
