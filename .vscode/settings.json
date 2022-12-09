@@ -9,6 +9,7 @@
     "freertos.h": "c",
     "task.h": "c",
     "spi_master.h": "c",
-    "string.h": "c"
+    "string.h": "c",
+    "ratio": "c"
   }
 }

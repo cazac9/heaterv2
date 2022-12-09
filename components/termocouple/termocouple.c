@@ -58,7 +58,7 @@ void heater_termocouple_module_init()
     .max_transfer_sz = (4 * 8)
   };
 
-  ret = spi_bus_initialize(VSPI_HOST, &buscfg, DMA_CHAN);
+  ret = spi_bus_initialize(VSPI_HOST, &buscfg, TERMOCOUPLE_DMA_CHAN);
   ESP_ERROR_CHECK(ret);
 
   spi_device_interface_config_t devCfg={
@@ -71,7 +71,7 @@ void heater_termocouple_module_init()
   ret = spi_bus_add_device(VSPI_HOST, &devCfg, &spi);
   ESP_ERROR_CHECK(ret);
 
-  xTaskCreate(&heater_termocouple_module_task, "temperature_task", 4096, spi, 5, NULL);
+  xTaskCreate(&heater_termocouple_module_task, "temperature_task", 4096, spi, configMAX_PRIORITIES-5, NULL);
 
   ESP_LOGI(TAG, "init started");
 }
