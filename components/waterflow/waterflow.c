@@ -17,7 +17,7 @@ static void heater_waterflow_module_task(void *pvParams)
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(1000));
     pcnt_unit_get_count(pcnt_unit, pulse_count);
-    ESP_LOGI(TAG, "pulseCount=%d", pulse_count);
+    ESP_LOGI(TAG, "waterflow=%d", (uint8_t)(pulse_count/4.5));
   }
 }
 
