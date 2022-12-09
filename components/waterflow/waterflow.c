@@ -11,13 +11,20 @@
 static void heater_waterflow_module_task(void *pvParams)
 {
   pcnt_unit_handle_t pcnt_unit = (pcnt_unit_handle_t) pvParams;
+  esp_err_t ret;
 
   int16_t pulse_count = 0;
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(1000));
-    pcnt_unit_get_count(pcnt_unit, pulse_count);
-    ESP_LOGI(TAG, "waterflow=%d", (uint8_t)(pulse_count/4.5));
+
+    ret = pcnt_unit_get_count(pcnt_unit, &pulse_count);
+    ESP_ERROR_CHECK(ret);
+
+    ESP_LOGI(TAG, "waterflow=%f", pulse_count/4.5);
+    
+    ret = pcnt_unit_clear_count(pcnt_unit);
+    ESP_ERROR_CHECK(ret);
   }
 }
 
@@ -37,12 +44,26 @@ void heater_waterflow_module_init()
   ret = pcnt_new_unit(&unit_config, &pcnt_unit);
   ESP_ERROR_CHECK(ret);
 
-  pcnt_chan_config_t chan_config = {
-    .edge_gpio_num = WATERFLOW_PULSE_PIN,
-    //.level_gpio_num = EXAMPLE_CHAN_GPIO_B,
+  pcnt_glitch_filter_config_t filter_config = {
+      .max_glitch_ns = 1000,
   };
 
+  ret = pcnt_unit_set_glitch_filter(pcnt_unit, &filter_config);
+  ESP_ERROR_CHECK(ret);
+
+  pcnt_chan_config_t chan_config = {
+    .edge_gpio_num = WATERFLOW_PULSE_PIN,
+    .level_gpio_num = WATERFLOW_PULSE_PIN,
+  };
+  
+
   ret = pcnt_new_channel(pcnt_unit, &chan_config, &pcnt_chan);
+  ESP_ERROR_CHECK(ret);
+
+  ret = pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_DECREASE, PCNT_CHANNEL_EDGE_ACTION_INCREASE);
+  ESP_ERROR_CHECK(ret);
+
+  ret = pcnt_channel_set_level_action(pcnt_chan, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_INVERSE);
   ESP_ERROR_CHECK(ret);
 
   ret = pcnt_unit_enable(pcnt_unit);
