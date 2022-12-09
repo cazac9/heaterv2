@@ -1,4 +1,4 @@
-set(req termocouple display)
+set(req termocouple display waterflow)
 
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS "."

@@ -15,4 +15,6 @@
 
 #define DISPLAY_UART UART_NUM_2
 
+#define WATERFLOW_PULSE_PIN GPIO_NUM_35
+
 #endif 

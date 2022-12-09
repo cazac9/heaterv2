@@ -23,7 +23,7 @@ static void heater_termocouple_module_task(void *pvParams)
     .rxlength = 16,
   };
 
-  for (;;) {
+  while (1) {
     spi_device_acquire_bus(spi, portMAX_DELAY);
     spi_device_transmit(spi, &tM);
     spi_device_release_bus(spi);
@@ -38,7 +38,7 @@ static void heater_termocouple_module_task(void *pvParams)
       ESP_LOGI(TAG, "temp=%f", (res * 0.25));
     }
 
-    vTaskDelay(pdMS_TO_TICKS(500));
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 

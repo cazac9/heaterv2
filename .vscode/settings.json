@@ -10,6 +10,10 @@
     "task.h": "c",
     "spi_master.h": "c",
     "string.h": "c",
-    "ratio": "c"
+    "ratio": "c",
+    "pins.h": "c",
+    "bitset": "c",
+    "chrono": "c",
+    "algorithm": "c"
   }
 }
