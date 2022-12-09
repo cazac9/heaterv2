@@ -13,7 +13,7 @@ static void heater_waterflow_module_task(void *pvParams)
   pcnt_unit_handle_t pcnt_unit = (pcnt_unit_handle_t) pvParams;
   esp_err_t ret;
 
-  int16_t pulse_count = 0;
+  int pulse_count = 0;
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(1000));
