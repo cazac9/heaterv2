@@ -1,8 +1,9 @@
 #include "waterflow.h"
-#include "pins.h"
+#include "globals.h"
 
 #include "freertos/freertos.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "driver/pulse_cnt.h"
 #include "esp_log.h"
 
@@ -12,6 +13,7 @@ static void heater_waterflow_module_task(void *pvParams)
 {
   pcnt_unit_handle_t pcnt_unit = (pcnt_unit_handle_t) pvParams;
   esp_err_t ret;
+  heater_globals_t g = heater_globals_get();
 
   int pulse_count = 0;
 
@@ -21,8 +23,11 @@ static void heater_waterflow_module_task(void *pvParams)
     ret = pcnt_unit_get_count(pcnt_unit, &pulse_count);
     ESP_ERROR_CHECK(ret);
 
-    ESP_LOGI(TAG, "waterflow=%f", pulse_count/4.5);
-    
+    uint16_t waterflow = (uint16_t)(pulse_count/4.5);
+
+    ESP_LOGI(TAG, "waterflow=%d", waterflow);
+    xQueueOverwrite(g.waterflow_heaters_queue, &waterflow);
+
     ret = pcnt_unit_clear_count(pcnt_unit);
     ESP_ERROR_CHECK(ret);
   }

@@ -1,8 +1,9 @@
 #include "termocouple.h"
-#include "pins.h"
+#include "globals.h"
 
 #include "freertos/freertos.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "driver/spi_master.h"
 #include "esp_log.h"
 
@@ -27,7 +28,7 @@ static void heater_termocouple_module_task(void *pvParams)
     spi_device_acquire_bus(spi, portMAX_DELAY);
     spi_device_transmit(spi, &tM);
     spi_device_release_bus(spi);
-
+    heater_globals_t g = heater_globals_get();
     int16_t res = (int16_t) SPI_SWAP_DATA_RX(data, 16);
 
 
@@ -35,7 +36,10 @@ static void heater_termocouple_module_task(void *pvParams)
       ESP_LOGE(TAG, "Sensor is not connected\n");
     else {
       res >>= 3;
-      ESP_LOGI(TAG, "temp=%f", (res * 0.25));
+      uint16_t temperature = (uint16_t)(res * 0.25);
+
+      xQueueOverwrite(g.currentTemp_heaters_queue, &temperature);
+      ESP_LOGI(TAG, "temp=%d", temperature);
     }
 
     vTaskDelay(pdMS_TO_TICKS(1000));

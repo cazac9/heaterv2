@@ -15,6 +15,10 @@
     "bitset": "c",
     "chrono": "c",
     "algorithm": "c",
-    "gpio.h": "c"
+    "gpio.h": "c",
+    "functional": "c",
+    "esp_log.h": "c",
+    "nvs_flash.h": "c",
+    "esp_wifi.h": "c"
   }
 }
