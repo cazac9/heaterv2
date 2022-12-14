@@ -40,7 +40,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
   }
 }
 
-void heater_enable_wifi_sta()
+void heater_enable_wifi_sta_task()
 {
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     esp_err_t ret;
@@ -117,4 +117,11 @@ void heater_enable_wifi_sta()
     ESP_ERROR_CHECK(ret);
 
     vEventGroupDelete(s_wifi_event_group);
+    
+    vTaskDelete(NULL);
+}
+
+void heater_enable_wifi_init()
+{
+    xTaskCreate(&heater_enable_wifi_sta_task, "wifi_init", 4096, NULL, configMAX_PRIORITIES-1, NULL);
 }

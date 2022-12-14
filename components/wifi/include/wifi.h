@@ -1,1 +1,1 @@
-void heater_enable_wifi_sta();
+void heater_enable_wifi_init();

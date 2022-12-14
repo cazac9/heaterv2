@@ -12,6 +12,7 @@ void app_main(void)
 {
     esp_log_level_set("*", ESP_LOG_NONE);
     esp_log_level_set("HEATERS", ESP_LOG_INFO);
+    esp_log_level_set("HEATERS_SET", ESP_LOG_INFO);
 
     //Initialize NVS
     esp_err_t ret = nvs_flash_init();
@@ -25,7 +26,7 @@ void app_main(void)
 
     heater_queues_init();
 
-    heater_enable_wifi_sta();
+    heater_enable_wifi_init();
 
     heater_waterflow_module_init();
     heater_termocouple_module_init();
