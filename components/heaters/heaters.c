@@ -24,19 +24,25 @@ static void heater_sync_task(void *pvParams)
     if(xQueueReceive(g.heaters_queue, &msg, portMAX_DELAY) == pdTRUE){
       switch (msg.action)
       {
-        case C_TEMP_UPDATE :
+        case C_TEMP_UPDATE:
           state.currentTemp = msg.state.currentTemp;
           ESP_LOGI(TAG_SET_VALUES, "currentTemp=%d", state.currentTemp);
           break;
 
-        case T_TEMP_UPDATE :
+        case T_TEMP_UPDATE:
           state.targetTemp = msg.state.targetTemp;
           ESP_LOGI(TAG_SET_VALUES, "targetTemp=%d", state.targetTemp);
           break;
 
-        case WATERFLOW_UPDATE :
+        case WATERFLOW_UPDATE:
           state.waterflow = msg.state.waterflow;
           ESP_LOGI(TAG_SET_VALUES, "waterflow=%d", state.waterflow);
+          break;
+
+        case SYNC_CONFIG:
+          state.targetTemp = msg.state.targetTemp;
+          ESP_LOGI(TAG_SET_VALUES, "targetTemp=%d", state.targetTemp);
+          // add rest
           break;
         
         default:

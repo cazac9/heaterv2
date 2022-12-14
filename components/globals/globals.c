@@ -1,4 +1,6 @@
 #include "globals.h"
+#include "freertos/freertos.h"
+#include "freertos/queue.h"
 
 heater_queues_t globals;
 

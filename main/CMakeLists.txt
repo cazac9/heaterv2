@@ -2,8 +2,8 @@ set(req termocouple
         display
         waterflow
         heaters
-        wifi
-        nvs_flash)
+        configuration
+        wifi)
 
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS "."

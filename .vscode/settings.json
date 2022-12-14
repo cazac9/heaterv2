@@ -19,6 +19,14 @@
     "functional": "c",
     "esp_log.h": "c",
     "nvs_flash.h": "c",
-    "esp_wifi.h": "c"
+    "esp_wifi.h": "c",
+    "wifi.h": "c",
+    "*.tcc": "c",
+    "system_error": "c",
+    "array": "c",
+    "regex": "c",
+    "tuple": "c",
+    "type_traits": "c",
+    "utility": "c"
   }
 }

@@ -1,5 +1,7 @@
+#include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+#include "esp_sntp.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -38,6 +40,17 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
       s_retry_num = 0;
       xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
   }
+}
+
+void configureTime(){
+  sntp_setoperatingmode(SNTP_OPMODE_POLL);
+  sntp_setservername(0, "ua.pool.ntp.org");
+  sntp_setservername(1, "time.google.com");
+  sntp_setservername(2, "pl.pool.ntp.org");
+  sntp_init();
+
+  setenv("TZ", "GMT-2", 1);
+  tzset();
 }
 
 void heater_enable_wifi_sta_task()
@@ -117,7 +130,9 @@ void heater_enable_wifi_sta_task()
     ESP_ERROR_CHECK(ret);
 
     vEventGroupDelete(s_wifi_event_group);
-    
+
+    configureTime();
+
     vTaskDelete(NULL);
 }
 
