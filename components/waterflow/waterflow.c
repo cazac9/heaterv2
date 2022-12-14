@@ -13,9 +13,13 @@ static void heater_waterflow_module_task(void *pvParams)
 {
   pcnt_unit_handle_t pcnt_unit = (pcnt_unit_handle_t) pvParams;
   esp_err_t ret;
-  heater_globals_t g = heater_globals_get();
+  heater_queues_t g = heater_queues_get();
 
   int pulse_count = 0;
+
+  heater_state_message_t msg = {
+    .action = WATERFLOW_UPDATE
+  };
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -24,9 +28,10 @@ static void heater_waterflow_module_task(void *pvParams)
     ESP_ERROR_CHECK(ret);
 
     uint16_t waterflow = (uint16_t)(pulse_count/4.5);
+    msg.state.waterflow = waterflow;
 
     ESP_LOGI(TAG, "waterflow=%d", waterflow);
-    xQueueOverwrite(g.waterflow_heaters_queue, &waterflow);
+    xQueueOverwrite(g.heaters_queue, &msg);
 
     ret = pcnt_unit_clear_count(pcnt_unit);
     ESP_ERROR_CHECK(ret);

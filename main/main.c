@@ -23,7 +23,7 @@ void app_main(void)
 
 
 
-    heater_globals_init();
+    heater_queues_init();
 
     heater_enable_wifi_sta();
 

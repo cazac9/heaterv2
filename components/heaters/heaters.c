@@ -13,49 +13,38 @@
 #define TAG_SET_VALUES "HEATERS_SET"
 #define PIN_COUNT 3
 
-uint16_t currentTemp;
-uint16_t targetTemp =40;
-uint16_t waterflow;
+heater_state_t state = {};
 
-static void heater_sync_current_temp_task(void *pvParams)
+static void heater_sync_task(void *pvParams)
 {
-  heater_globals_t g = heater_globals_get();
-  uint16_t msg = 0;
+  heater_queues_t g = heater_queues_get();
+  heater_state_message_t msg = {};
   while (1)
   {
-    if(xQueueReceive(g.currentTemp_heaters_queue, &msg, portMAX_DELAY) == pdTRUE){
-      currentTemp = msg;
-      ESP_LOGI(TAG_SET_VALUES, "currentTemp=%d", currentTemp);
+    if(xQueueReceive(g.heaters_queue, &msg, portMAX_DELAY) == pdTRUE){
+      switch (msg.action)
+      {
+        case C_TEMP_UPDATE :
+          state.currentTemp = msg.state.currentTemp;
+          ESP_LOGI(TAG_SET_VALUES, "currentTemp=%d", state.currentTemp);
+          break;
+
+        case T_TEMP_UPDATE :
+          state.targetTemp = msg.state.targetTemp;
+          ESP_LOGI(TAG_SET_VALUES, "targetTemp=%d", state.targetTemp);
+          break;
+
+        case WATERFLOW_UPDATE :
+          state.waterflow = msg.state.waterflow;
+          ESP_LOGI(TAG_SET_VALUES, "waterflow=%d", state.waterflow);
+          break;
+        
+        default:
+          break;
+      }
     }
   }
 }
-
-static void heater_sync_target_temp_task(void *pvParams)
-{
-  heater_globals_t g = heater_globals_get();
-  uint16_t msg = 0;
-  while (1)
-  {
-    if(xQueueReceive(g.targetTemp_heaters_queue, &msg, portMAX_DELAY) == pdTRUE){
-      targetTemp = msg;
-      ESP_LOGI(TAG_SET_VALUES, "targetTemp=%d", targetTemp);
-    }
-  }
-}
-
-static void heater_sync_waterflow_task(void *pvParams)
-{
-  heater_globals_t g = heater_globals_get();
-  uint16_t msg = 0;
-  while (1)
-  {
-    if(xQueueReceive(g.waterflow_heaters_queue, &msg, portMAX_DELAY) == pdTRUE){
-      waterflow = msg;
-      ESP_LOGI(TAG_SET_VALUES, "waterflow=%d", waterflow);
-    }
-  }
-}
-
 
 static void heater_heaters_module_task(void *pvParams)
 {
@@ -63,11 +52,11 @@ static void heater_heaters_module_task(void *pvParams)
   pid_ctrl_block_handle_t pid = (pid_ctrl_block_handle_t)pvParams;
   uint8_t powerPins[PIN_COUNT] = {HEATER_PIN_A, HEATER_PIN_B, HEATER_PIN_C};
 
-  int error = targetTemp - currentTemp;
+  int error = state.targetTemp - state.currentTemp;
   float result = 0;
   while (1)
   {
-    if (waterflow <= 0)
+    if (state.waterflow <= 0)
     {
       ESP_LOGE(TAG, "waterflow == 0");
       for (uint8_t i = 0; i < PIN_COUNT; i++){
@@ -125,10 +114,7 @@ void heater_heaters_module_init()
   ESP_ERROR_CHECK(ret);
 
   xTaskCreate(&heater_heaters_module_task, "heaters_task", 4096, pid, configMAX_PRIORITIES-1, NULL);
-
-  xTaskCreate(&heater_sync_current_temp_task, "current_temp_task", 4096, NULL, configMAX_PRIORITIES-1, NULL);
-  xTaskCreate(&heater_sync_target_temp_task, "target_temp_task", 4096, NULL, configMAX_PRIORITIES-1, NULL);
-  xTaskCreate(&heater_sync_waterflow_task, "waterflow_task", 4096, NULL, configMAX_PRIORITIES-1, NULL);
+  xTaskCreate(&heater_sync_task, "sync_task", 4096, NULL, configMAX_PRIORITIES-1, NULL);
 
   ESP_LOGI(TAG, "init started");
 }

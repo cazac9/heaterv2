@@ -24,11 +24,15 @@ static void heater_termocouple_module_task(void *pvParams)
     .rxlength = 16,
   };
 
+  heater_state_message_t msg = {
+    .action = C_TEMP_UPDATE
+  };
+
   while (1) {
     spi_device_acquire_bus(spi, portMAX_DELAY);
     spi_device_transmit(spi, &tM);
     spi_device_release_bus(spi);
-    heater_globals_t g = heater_globals_get();
+    heater_queues_t g = heater_queues_get();
     int16_t res = (int16_t) SPI_SWAP_DATA_RX(data, 16);
 
 
@@ -36,9 +40,11 @@ static void heater_termocouple_module_task(void *pvParams)
       ESP_LOGE(TAG, "Sensor is not connected\n");
     else {
       res >>= 3;
+      
       uint16_t temperature = (uint16_t)(res * 0.25);
+      msg.state.currentTemp = temperature;
 
-      xQueueOverwrite(g.currentTemp_heaters_queue, &temperature);
+      xQueueOverwrite(g.heaters_queue, &msg);
       ESP_LOGI(TAG, "temp=%d", temperature);
     }
 

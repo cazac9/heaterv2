@@ -1,13 +1,11 @@
 #include "globals.h"
 
-heater_globals_t globals;
+heater_queues_t globals;
 
-void heater_globals_init()
+void heater_queues_init()
 {
-  heater_globals_t g = {
-    .currentTemp_heaters_queue = xQueueCreate(1, sizeof(uint16_t)),
-    .waterflow_heaters_queue = xQueueCreate(1, sizeof(uint16_t)),
-    .targetTemp_heaters_queue = xQueueCreate(1, sizeof(uint16_t)),
+  heater_queues_t g = {
+    .heaters_queue = xQueueCreate(1, sizeof(heater_state_message_t)),
     .currentTemp_display_queue=xQueueCreate(1, sizeof(uint16_t)),
     .waterflow_display_queue=xQueueCreate(1, sizeof(uint16_t)),
   };
@@ -15,7 +13,7 @@ void heater_globals_init()
   globals = g;
 }
 
-heater_globals_t heater_globals_get()
+heater_queues_t heater_queues_get()
 {
   return globals;
 }
