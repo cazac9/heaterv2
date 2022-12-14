@@ -1,14 +1,16 @@
 #include <time.h>
+#include "pins.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+#include "driver/gpio.h"
 #include "esp_sntp.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
 
 
-#define WIFI_SSID      "CONFIG_ESP_WIFI_SSID"
-#define WIFI_PASS      "CONFIG_ESP_WIFI_PASSWORD"
+#define WIFI_SSID      "130"
+#define WIFI_PASS      "success~1"
 #define WIFI_MAXIMUM_RETRY  10
 
 static EventGroupHandle_t s_wifi_event_group;
@@ -38,6 +40,11 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
       ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
       ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
       s_retry_num = 0;
+
+      esp_rom_gpio_pad_select_gpio(WIFI_LED_PIN);
+      gpio_set_direction(WIFI_LED_PIN, GPIO_MODE_OUTPUT);
+      gpio_set_level(WIFI_LED_PIN, true);
+
       xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
   }
 }

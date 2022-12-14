@@ -44,7 +44,7 @@ static void heater_termocouple_module_task(void *pvParams)
       uint16_t temperature = (uint16_t)(res * 0.25);
       msg.state.currentTemp = temperature;
 
-      xQueueOverwrite(g.heaters_queue, &msg);
+      xQueueSendToBack(g.heaters_queue, &msg, 0);
       ESP_LOGI(TAG, "temp=%d", temperature);
     }
 

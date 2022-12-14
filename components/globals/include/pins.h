@@ -19,4 +19,6 @@
 #define HEATER_PIN_B  GPIO_NUM_33
 #define HEATER_PIN_C  GPIO_NUM_26
 
+#define WIFI_LED_PIN  GPIO_NUM_2
+
 #endif 

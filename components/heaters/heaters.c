@@ -39,9 +39,17 @@ static void heater_sync_task(void *pvParams)
           ESP_LOGI(TAG_SET_VALUES, "waterflow=%d", state.waterflow);
           break;
 
+          case HEATERS_STATE:
+          //state.heatersState = msg.state.heatersState;
+          ESP_LOGI(TAG_SET_VALUES, "heaters state");
+          break;
+
         case SYNC_CONFIG:
           state.targetTemp = msg.state.targetTemp;
           ESP_LOGI(TAG_SET_VALUES, "targetTemp=%d", state.targetTemp);
+
+          state.isOn = msg.state.isOn;
+          ESP_LOGI(TAG_SET_VALUES, "isOn=%d", state.isOn);
           // add rest
           break;
         
@@ -62,6 +70,13 @@ static void heater_heaters_module_task(void *pvParams)
   float result = 0;
   while (1)
   {
+    if (!state.isOn)
+    {
+      ESP_LOGI(TAG, "Heater switched off");
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      continue;
+    }
+    
     if (state.waterflow <= 0)
     {
       ESP_LOGE(TAG, "waterflow == 0");
