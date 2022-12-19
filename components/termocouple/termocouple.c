@@ -12,6 +12,7 @@
 
 static void heater_termocouple_module_task(void *pvParams)
 {
+  heater_queues_t g = heater_queues_get();
   ESP_LOGI(TAG, "module task starting");
 
   spi_device_handle_t spi = (spi_device_handle_t) pvParams;
@@ -32,7 +33,7 @@ static void heater_termocouple_module_task(void *pvParams)
     spi_device_acquire_bus(spi, portMAX_DELAY);
     spi_device_transmit(spi, &tM);
     spi_device_release_bus(spi);
-    heater_queues_t g = heater_queues_get();
+    
     int16_t res = (int16_t) SPI_SWAP_DATA_RX(data, 16);
 
 

@@ -6,8 +6,7 @@
 
 typedef struct {
   QueueHandle_t heaters_queue;
-  QueueHandle_t currentTemp_display_queue;
-  QueueHandle_t waterflow_display_queue;
+  QueueHandle_t display_queue;
 } heater_queues_t;
 
 

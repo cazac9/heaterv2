@@ -1,5 +1,6 @@
 #include "display.h"
-#include "pins.h"
+#include "globals.h"
+#include "dgus_helpers.h"
 
 #include <string.h>
 
@@ -10,34 +11,75 @@
 
 #define TAG "DISPLAY"
 #define RX_TAG "DISPLAY_RX_TASK"
-#define DISPLAY_RX_BUF_SIZE 1024
+#define TX_TAG "DISPLAY_TX_TASK"
+
+void receive_data_callback(char *data, uint8_t cmd, uint8_t len, uint16_t addr, uint8_t bytelen) {
+    heater_queues_t g = heater_queues_get();
+    switch (addr)
+    {
+        case 0x0:
+            heater_state_message_t msg = {
+                .action = T_TEMP_UPDATE,
+                //.state.currentTemp = temperature
+            };
+                
+            xQueueSendToBack(g.heaters_queue, &msg, 0);
+            break;
+        
+        default:
+            break;
+    }
+}
 
 static void display_uart_rx_task(void *arg)
 {
-    uint8_t* data = (uint8_t*) malloc(DISPLAY_RX_BUF_SIZE+1);
-    while (1) {
-        //wait time
-        const int rxBytes = uart_read_bytes(DISPLAY_UART, data, DISPLAY_RX_BUF_SIZE, pdMS_TO_TICKS(500));
-        if (rxBytes > 0) {
-            data[rxBytes] = 0;
-            ESP_LOGI(RX_TAG, "Read %d bytes: '%s'", rxBytes, data);
-        }
-    }
-    free(data);
+  dgus_recv_data(receive_data_callback);
 }
 
 static void display_uart_tx_task(void *arg)
 {
-	char* data = (char*) malloc(100);
-    int num = 0;
+    heater_queues_t g = heater_queues_get();
+    heater_state_message_t msg = {};
+
     while (1) {
-    	sprintf (data, "Hello world index = %d\r\n", num++);
-        const int txBytes = uart_write_bytes(DISPLAY_UART, data, strlen(data));
-        ESP_LOGI(RX_TAG, "Write %d bytes: '%s'", txBytes, data);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        if(xQueueReceive(g.display_queue, &msg, portMAX_DELAY) == pdTRUE){
+            switch (msg.action)
+            {
+                case C_TEMP_UPDATE:
+                dgus_set_var(0x0, msg.state.currentTemp);
+                ESP_LOGI(RX_TAG, "currentTemp=%d", msg.state.currentTemp);
+                break;
+
+                case T_TEMP_UPDATE:
+                dgus_set_var(0x0, msg.state.targetTemp);
+                ESP_LOGI(RX_TAG, "targetTemp=%d", msg.state.targetTemp);
+                break;
+
+                case WATERFLOW_UPDATE:
+                dgus_set_var(0x0, msg.state.waterflow);
+                ESP_LOGI(RX_TAG, "waterflow=%d", msg.state.waterflow);
+                break;
+
+                case HEATERS_STATE:
+                dgus_set_var(0x0, msg.state.targetTemp);
+                ESP_LOGI(RX_TAG, "heaters state");
+                break;
+
+                case SYNC_CONFIG:
+                // state.targetTemp = msg.state.targetTemp;
+                // ESP_LOGI(RX_TAG, "targetTemp=%d", msg.state.targetTemp);
+
+                // state.isOn = msg.state.isOn;
+                // ESP_LOGI(RX_TAG, "isOn=%d", state.isOn);
+                // add rest
+                break;
+                
+                default:
+                break;
+            }
+        }
     }
 }
-
 
 void heater_display_module_init()
 {
@@ -62,11 +104,11 @@ void heater_display_module_init()
 
     ret = uart_set_pin(DISPLAY_UART, DISPLAY_TXD_PIN, DISPLAY_RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     ESP_ERROR_CHECK(ret);
-//*uart_queue
-// free()
 
     xTaskCreate(display_uart_rx_task, "display_uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES-1, NULL);
     xTaskCreate(display_uart_tx_task, "display_uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES-2, NULL);
 
     ESP_LOGI(TAG, "init started");
 }
+
+

@@ -11,7 +11,6 @@
 void app_main(void)
 {
   //sync datetime
-  //check wifi
   // Google home
   // schedule
   // screen
