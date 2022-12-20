@@ -15,6 +15,7 @@ typedef struct {
   int targetTemp;
   int waterflow;
   int isOn;
+  uint32_t heatersState;
 } heater_state_t;
 
 typedef enum {
@@ -36,6 +37,7 @@ typedef struct {
 typedef struct {
   int targetTemp;
   int isOn;
+  int heatersState;
 } heater_config_t;
 
 #endif

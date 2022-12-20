@@ -25,6 +25,7 @@ heater_config_t heater_configuration_get()
   {
     config.targetTemp = 40;
     config.isOn = 0;
+    config.heatersState = 0;
     heater_configuration_set(config);
   }
 
@@ -40,11 +41,13 @@ void heater_sync_config()
     .action = SYNC_CONFIG,
     .state = {
       .targetTemp = config.targetTemp,
-      .isOn = config.isOn
+      .isOn = config.isOn,
+      .heatersState = config.heatersState
     }
   };
 
   xQueueSendToBack(q.heaters_queue, &msg, 0);
+  xQueueSendToBack(q.display_queue, &msg, 0);
 }
 
 void heater_configuration_set(heater_config_t config)

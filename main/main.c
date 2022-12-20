@@ -16,9 +16,11 @@ void app_main(void)
   // screen
   
     esp_log_level_set("*", ESP_LOG_NONE);
-    esp_log_level_set("HEATERS", ESP_LOG_INFO);
+    esp_log_level_set("CONFIG", ESP_LOG_INFO);
     esp_log_level_set("HEATERS_SET", ESP_LOG_INFO);
-
+    esp_log_level_set("HEATERS", ESP_LOG_INFO);
+    // esp_log_level_set("DSUG", ESP_LOG_INFO);
+    
     heater_queues_init();
 
     heater_configuration_init();

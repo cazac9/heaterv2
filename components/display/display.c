@@ -13,27 +13,39 @@
 #define RX_TAG "DISPLAY_RX_TASK"
 #define TX_TAG "DISPLAY_TX_TASK"
 
-void receive_data_callback(char *data, uint8_t cmd, uint8_t len, uint16_t addr, uint8_t bytelen) {
+void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
+    ESP_LOGI(RX_TAG, "%02x %02x %02x", cmd, addr, value);
+    if (cmd == DGUS_CMD_VAR_W)
+        return;
+    
     heater_queues_t g = heater_queues_get();
     switch (addr)
     {
-        case 0x0:
+        case DGUS_VAR_C_TEMP:
+            // ignore current temperature update from display
+            break;
+
+        case DGUS_VAR_T_TEMP:
             heater_state_message_t msg = {
                 .action = T_TEMP_UPDATE,
-                //.state.currentTemp = temperature
+                .state.targetTemp = value
             };
                 
             xQueueSendToBack(g.heaters_queue, &msg, 0);
             break;
         
         default:
+        ESP_LOGW(RX_TAG, "Unexpected address %x", addr);
             break;
     }
 }
 
 static void display_uart_rx_task(void *arg)
 {
-  dgus_recv_data(receive_data_callback);
+    while (1)
+    {
+         dgus_recv_data(receive_data_callback);
+    }
 }
 
 static void display_uart_tx_task(void *arg)
@@ -46,23 +58,23 @@ static void display_uart_tx_task(void *arg)
             switch (msg.action)
             {
                 case C_TEMP_UPDATE:
-                dgus_set_var(0x0, msg.state.currentTemp);
-                ESP_LOGI(RX_TAG, "currentTemp=%d", msg.state.currentTemp);
+                dgus_set_var(DGUS_VAR_C_TEMP, msg.state.currentTemp);
+                ESP_LOGI(TX_TAG, "currentTemp=%d", msg.state.currentTemp);
                 break;
 
                 case T_TEMP_UPDATE:
                 dgus_set_var(0x0, msg.state.targetTemp);
-                ESP_LOGI(RX_TAG, "targetTemp=%d", msg.state.targetTemp);
+                ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
                 break;
 
                 case WATERFLOW_UPDATE:
                 dgus_set_var(0x0, msg.state.waterflow);
-                ESP_LOGI(RX_TAG, "waterflow=%d", msg.state.waterflow);
+                ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
                 break;
 
                 case HEATERS_STATE:
                 dgus_set_var(0x0, msg.state.targetTemp);
-                ESP_LOGI(RX_TAG, "heaters state");
+                ESP_LOGI(TX_TAG, "heaters state");
                 break;
 
                 case SYNC_CONFIG:

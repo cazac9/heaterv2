@@ -15,6 +15,11 @@
 
 heater_state_t state = {};
 
+uint8_t h_state(int stateConfig, int heater)
+{
+  return (stateConfig >> (8*(heater-1))) & 0xff;
+  }
+
 static void heater_sync_task(void *pvParams)
 {
   heater_queues_t g = heater_queues_get();
@@ -40,8 +45,11 @@ static void heater_sync_task(void *pvParams)
           break;
 
           case HEATERS_STATE:
-          //state.heatersState = msg.state.heatersState;
-          ESP_LOGI(TAG_SET_VALUES, "heaters state");
+          state.heatersState = msg.state.heatersState;
+          ESP_LOGI(TAG_SET_VALUES, "heatersState= 0x %02x %02x %02x",
+              h_state(state.heatersState, 1),
+              h_state(state.heatersState, 2),
+              h_state(state.heatersState, 3));
           break;
 
         case SYNC_CONFIG:
@@ -50,6 +58,13 @@ static void heater_sync_task(void *pvParams)
 
           state.isOn = msg.state.isOn;
           ESP_LOGI(TAG_SET_VALUES, "isOn=%d", state.isOn);
+
+          state.heatersState = msg.state.heatersState;
+          ESP_LOGI(TAG_SET_VALUES, "heatersState= 0x %02x %02x %02x",
+              h_state(state.heatersState, 1),
+              h_state(state.heatersState, 2),
+              h_state(state.heatersState, 3));
+          
           // add rest
           break;
         
@@ -90,9 +105,19 @@ static void heater_heaters_module_task(void *pvParams)
     
     ret = pid_compute(pid, error, &result);
     ESP_ERROR_CHECK(ret);
+    if (result == 0)
+    {
+      for (uint8_t i = 0; i < PIN_COUNT; i++){
+        gpio_set_level(powerPins[i], false);
+      }
+
+      ESP_LOGI(TAG, "Cooling...");
+      vTaskDelay(pdMS_TO_TICKS(5000));
+      continue;
+    }
     
     for (uint8_t i = 0; i < PIN_COUNT; i++){
-      gpio_set_level(powerPins[i], true);
+      gpio_set_level(powerPins[i], h_state(state.heatersState, i - 1));
     }
 
     ESP_LOGI(TAG, "heating for %f seconds", result / 1000);
