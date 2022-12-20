@@ -49,7 +49,7 @@ static void display_uart_rx_task(void *arg)
 }
 
 
-uint8_t h_state(int stateConfig, int heater) {
+uint8_t h_st(int stateConfig, int heater) {
   return (stateConfig >> (8*(heater-1))) & 0xff;
 }
 
@@ -78,13 +78,13 @@ static void display_uart_tx_task(void *arg)
                     break;
 
                 case HEATERS_STATE:
-                    dgus_set_var(DSUG_VAR_HSTATE1, h_state(msg.state.heatersState, 1));
-                    dgus_set_var(DSUG_VAR_HSTATE2, h_state(msg.state.heatersState, 2));
-                    dgus_set_var(DSUG_VAR_HSTATE3, h_state(msg.state.heatersState, 3));
+                    dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE2, h_st(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE3, h_st(msg.state.heatersState, 3));
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
-                        h_state(msg.state.heatersState, 1),
-                        h_state(msg.state.heatersState, 2),
-                        h_state(msg.state.heatersState, 3));
+                        h_st(msg.state.heatersState, 1),
+                        h_st(msg.state.heatersState, 2),
+                        h_st(msg.state.heatersState, 3));
                     break;
 
                 case SYNC_CONFIG:
@@ -94,13 +94,13 @@ static void display_uart_tx_task(void *arg)
                     dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
                     ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
 
-                    dgus_set_var(DSUG_VAR_HSTATE1, h_state(msg.state.heatersState, 1));
-                    dgus_set_var(DSUG_VAR_HSTATE2, h_state(msg.state.heatersState, 2));
-                    dgus_set_var(DSUG_VAR_HSTATE3, h_state(msg.state.heatersState, 3));
+                    dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE2, h_st(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE3, h_st(msg.state.heatersState, 3));
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
-                        h_state(msg.state.heatersState, 1),
-                        h_state(msg.state.heatersState, 2),
-                        h_state(msg.state.heatersState, 3));
+                        h_st(msg.state.heatersState, 1),
+                        h_st(msg.state.heatersState, 2),
+                        h_st(msg.state.heatersState, 3));
                     break;
 
                 break;
