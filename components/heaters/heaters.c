@@ -15,10 +15,9 @@
 
 heater_state_t state = {};
 
-uint8_t h_state(int stateConfig, int heater)
-{
+uint8_t h_state(int stateConfig, int heater) {
   return (stateConfig >> (8*(heater-1))) & 0xff;
-  }
+}
 
 static void heater_sync_task(void *pvParams)
 {
@@ -85,26 +84,28 @@ static void heater_heaters_module_task(void *pvParams)
   float result = 0;
   while (1)
   {
-    if (!state.isOn)
-    {
-      ESP_LOGI(TAG, "Heater switched off");
-      vTaskDelay(pdMS_TO_TICKS(1000));
-      continue;
-    }
-    
-    if (state.waterflow <= 0)
-    {
-      ESP_LOGE(TAG, "waterflow == 0");
-      for (uint8_t i = 0; i < PIN_COUNT; i++){
-        gpio_set_level(powerPins[i], false);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-      }
+      // if (!state.isOn)
+      // {
+      //   ESP_LOGI(TAG, "Heater switched off");
+      //   vTaskDelay(pdMS_TO_TICKS(1000));
+      //   continue;
+      // }
       
-      continue;
-    }
+      // if (state.waterflow <= 0)
+      // {
+      //   ESP_LOGE(TAG, "waterflow == 0");
+      //   for (uint8_t i = 0; i < PIN_COUNT; i++){
+      //     gpio_set_level(powerPins[i], false);
+      //     vTaskDelay(pdMS_TO_TICKS(1000));
+      //   }
+        
+      //   continue;
+      // }
     
     ret = pid_compute(pid, error, &result);
     ESP_ERROR_CHECK(ret);
+    ESP_LOGI(TAG, "CT: %d TT: %d RES: %d", state.currentTemp, state.targetTemp, (int)result);
+
     if (result == 0)
     {
       for (uint8_t i = 0; i < PIN_COUNT; i++){

@@ -34,7 +34,11 @@ enum command {
 
 enum variables {
   DGUS_VAR_C_TEMP = 0x1000,
-  DGUS_VAR_T_TEMP
+  DGUS_VAR_T_TEMP,
+  DSUG_VAR_WTRFLOW,
+  DSUG_VAR_HSTATE1,
+  DSUG_VAR_HSTATE2,
+  DSUG_VAR_HSTATE3
 };
 
 

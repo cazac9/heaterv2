@@ -48,6 +48,11 @@ static void display_uart_rx_task(void *arg)
     }
 }
 
+
+uint8_t h_state(int stateConfig, int heater) {
+  return (stateConfig >> (8*(heater-1))) & 0xff;
+}
+
 static void display_uart_tx_task(void *arg)
 {
     heater_queues_t g = heater_queues_get();
@@ -58,32 +63,46 @@ static void display_uart_tx_task(void *arg)
             switch (msg.action)
             {
                 case C_TEMP_UPDATE:
-                dgus_set_var(DGUS_VAR_C_TEMP, msg.state.currentTemp);
-                ESP_LOGI(TX_TAG, "currentTemp=%d", msg.state.currentTemp);
-                break;
+                    dgus_set_var(DGUS_VAR_C_TEMP, msg.state.currentTemp);
+                    ESP_LOGI(TX_TAG, "currentTemp=%d", msg.state.currentTemp);
+                    break;
 
                 case T_TEMP_UPDATE:
-                dgus_set_var(0x0, msg.state.targetTemp);
-                ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
-                break;
+                    dgus_set_var(DGUS_VAR_T_TEMP, msg.state.targetTemp);
+                    ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
+                    break;
 
                 case WATERFLOW_UPDATE:
-                dgus_set_var(0x0, msg.state.waterflow);
-                ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
-                break;
+                    dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
+                    ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
+                    break;
 
                 case HEATERS_STATE:
-                dgus_set_var(0x0, msg.state.targetTemp);
-                ESP_LOGI(TX_TAG, "heaters state");
-                break;
+                    dgus_set_var(DSUG_VAR_HSTATE1, h_state(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE2, h_state(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE3, h_state(msg.state.heatersState, 3));
+                    ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
+                        h_state(msg.state.heatersState, 1),
+                        h_state(msg.state.heatersState, 2),
+                        h_state(msg.state.heatersState, 3));
+                    break;
 
                 case SYNC_CONFIG:
-                // state.targetTemp = msg.state.targetTemp;
-                // ESP_LOGI(RX_TAG, "targetTemp=%d", msg.state.targetTemp);
+                    dgus_set_var(DGUS_VAR_T_TEMP, msg.state.targetTemp);
+                    ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
 
-                // state.isOn = msg.state.isOn;
-                // ESP_LOGI(RX_TAG, "isOn=%d", state.isOn);
-                // add rest
+                    dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
+                    ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
+
+                    dgus_set_var(DSUG_VAR_HSTATE1, h_state(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE2, h_state(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE3, h_state(msg.state.heatersState, 3));
+                    ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
+                        h_state(msg.state.heatersState, 1),
+                        h_state(msg.state.heatersState, 2),
+                        h_state(msg.state.heatersState, 3));
+                    break;
+
                 break;
                 
                 default:
