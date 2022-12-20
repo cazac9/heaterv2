@@ -35,6 +35,7 @@
     "string": "c",
     "string_view": "c",
     "complex": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "cstddef": "c"
   }
 }

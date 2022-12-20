@@ -23,6 +23,7 @@ typedef enum {
   T_TEMP_UPDATE,
   WATERFLOW_UPDATE,
   HEATERS_STATE,
+  IS_ON,
   SYNC_CONFIG,
   FULL_UPDATE
 } heater_action_t;

@@ -1,6 +1,7 @@
 #include "display.h"
 #include "globals.h"
 #include "dgus_helpers.h"
+#include "configuration.h"
 
 #include <string.h>
 
@@ -13,6 +14,26 @@
 #define RX_TAG "DISPLAY_RX_TASK"
 #define TX_TAG "DISPLAY_TX_TASK"
 
+int replace_byte(int index, int value, uint8_t replaceByte)
+{
+    return (value & ~(0xFF << (index * 8))) | (replaceByte << (index * 8));
+}
+
+void update_h_state(int index, uint16_t value){
+    heater_queues_t g = heater_queues_get();
+    heater_config_t config = heater_configuration_get();
+    int newState = replace_byte(index, config.heatersState, value);
+    config.heatersState = newState;
+    heater_configuration_set(config);
+
+    heater_state_message_t msg = {
+        .action = HEATERS_STATE,
+        .state.heatersState = newState
+    };
+
+    xQueueSendToBack(g.heaters_queue, &msg, 0);
+}
+
 void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
     ESP_LOGI(RX_TAG, "%02x %02x %02x", cmd, addr, value);
     if (cmd == DGUS_CMD_VAR_W)
@@ -22,6 +43,7 @@ void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
     switch (addr)
     {
         case DGUS_VAR_C_TEMP:
+        case DSUG_VAR_WTRFLOW:
             // ignore current temperature update from display
             break;
 
@@ -30,12 +52,41 @@ void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
                 .action = T_TEMP_UPDATE,
                 .state.targetTemp = value
             };
-                
+
+            heater_config_t config = heater_configuration_get();
+            config.targetTemp = value;
+            heater_configuration_set(config);
+
             xQueueSendToBack(g.heaters_queue, &msg, 0);
             break;
         
+        case DSUG_VAR_HSTATE1: {
+            update_h_state(0, value);
+            break;
+        }
+        case DSUG_VAR_HSTATE2: {
+            update_h_state(1, value);
+            break;
+        }
+        case DSUG_VAR_HSTATE3: {
+            update_h_state(2, value);
+            break;
+        }
+        case DSUG_VAR_IS_ON: {
+            heater_state_message_t msg = {
+                .action = IS_ON,
+                .state.isOn = value
+            };
+
+            heater_config_t config = heater_configuration_get();
+            config.isOn = value;
+            heater_configuration_set(config);
+            
+            xQueueSendToBack(g.heaters_queue, &msg, 0);
+            break;
+        }
         default:
-        ESP_LOGW(RX_TAG, "Unexpected address %x", addr);
+            ESP_LOGW(RX_TAG, "Unexpected address %x", addr);
             break;
     }
 }
@@ -43,9 +94,7 @@ void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
 static void display_uart_rx_task(void *arg)
 {
     while (1)
-    {
-         dgus_recv_data(receive_data_callback);
-    }
+        dgus_recv_data(receive_data_callback);
 }
 
 
