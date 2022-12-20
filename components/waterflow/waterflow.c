@@ -32,6 +32,7 @@ static void heater_waterflow_module_task(void *pvParams)
 
     ESP_LOGI(TAG, "waterflow=%d", waterflow);
     xQueueSendToBack(g.heaters_queue, &msg, 0);
+    xQueueSendToBack(g.display_queue, &msg, 0);
 
     ret = pcnt_unit_clear_count(pcnt_unit);
     ESP_ERROR_CHECK(ret);
