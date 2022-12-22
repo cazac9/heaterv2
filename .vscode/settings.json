@@ -38,6 +38,8 @@
     "stdio.h": "c",
     "cstddef": "c",
     "cstdint": "c",
-    "esp_sntp.h": "c"
+    "esp_sntp.h": "c",
+    "cmath": "c",
+    "sstream": "c"
   }
 }

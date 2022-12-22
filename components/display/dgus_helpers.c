@@ -15,11 +15,28 @@
 
 void log_receive_data(int rxBytes, uint8_t *data){
   ESP_LOGI(TAG, "Got %d bytes", rxBytes);
+  
   printf("Received ");
   for (size_t i = 0; i < rxBytes; i++)
   {
     printf("%02x ", data[i]);
   }
+  printf("\n");
+}
+
+void log_send_data(dgus_packet *p){
+  printf("Send 0x");
+  for (int i = 0; i < sizeof(p->header); i++)
+  {
+    printf("%02x ", *((uint8_t *)&p->header + i));
+  }
+  printf(" | ");
+
+  for (int i = 0; i < p->len; i++)
+  {
+    printf("%02x ", *((uint8_t *)p + i + offsetof(dgus_packet, data)));
+  }
+
   printf("\n");
 }
 
@@ -33,7 +50,7 @@ int dgus_recv_data(receive_package_callback callback)
     return 0;
   }
 
-  //log_receive_data(rxBytes, data);
+  log_receive_data(rxBytes, data);
 
   if (data[0] != HEADER0 || data[1] != HEADER1 )
   {
@@ -75,27 +92,11 @@ static void _prepare_header(dgus_packet_header *header, uint16_t cmd, uint16_t l
   header->cmd = cmd;
 }
 
-void log_send_data(dgus_packet *p){
-  printf("Send 0x");
-  for (int i = 0; i < sizeof(p->header); i++)
-  {
-    printf("%02x ", *((uint8_t *)&p->header + i));
-  }
-  printf(" | ");
-
-  for (int i = 0; i < p->len; i++)
-  {
-    printf("%02x ", *((uint8_t *)p + i + offsetof(dgus_packet, data)));
-  }
-
-  printf("\n");
-}
-
 DGUS_RETURN send_data(enum command cmd, dgus_packet *p)
 {
   _prepare_header(&p->header, cmd, p->len);
   
-  //log_send_data(p);
+  log_send_data(p);
 
   int txBytes = uart_write_bytes(DISPLAY_UART, (char *)p, (p->len + p->header.len - 1));
 
