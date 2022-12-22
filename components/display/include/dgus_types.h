@@ -33,6 +33,7 @@ enum command {
 };
 
 enum variables {
+  DSUG_VAR_TIME = 0x0010,
   DGUS_VAR_C_TEMP = 0x1000,
   DGUS_VAR_T_TEMP,
   DSUG_VAR_WTRFLOW,

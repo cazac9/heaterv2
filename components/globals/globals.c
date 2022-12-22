@@ -9,6 +9,7 @@ void heater_queues_init()
   heater_queues_t g = {
     .heaters_queue = xQueueCreate(25, sizeof(heater_state_message_t)),
     .display_queue=xQueueCreate(25, sizeof(heater_state_message_t)),
+    .time_queue=xQueueCreate(25, sizeof(heater_state_message_t)),
   };
 
   globals = g;

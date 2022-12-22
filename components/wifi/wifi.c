@@ -1,13 +1,10 @@
-#include <time.h>
-#include "pins.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "driver/gpio.h"
-#include "esp_sntp.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
-
+#include "globals.h"
 
 #define WIFI_SSID      "130"
 #define WIFI_PASS      "success~1"
@@ -47,17 +44,6 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 
       xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
   }
-}
-
-void configureTime(){
-  sntp_setoperatingmode(SNTP_OPMODE_POLL);
-  sntp_setservername(0, "ua.pool.ntp.org");
-  sntp_setservername(1, "time.google.com");
-  sntp_setservername(2, "pl.pool.ntp.org");
-  sntp_init();
-
-  setenv("TZ", "GMT-2", 1);
-  tzset();
 }
 
 void heater_enable_wifi_sta_task()
@@ -138,12 +124,20 @@ void heater_enable_wifi_sta_task()
 
     vEventGroupDelete(s_wifi_event_group);
 
-    configureTime();
+    heater_state_message_t msg = {
+        .action = WIFI_CONNECTED
+    };
+    heater_queues_t g = heater_queues_get();
+    xQueueSendToBack(g.time_queue, &msg, 0);
 
     vTaskDelete(NULL);
 }
 
 void heater_enable_wifi_init()
 {
+    ESP_LOGI(TAG, "Init start");
+
     xTaskCreate(&heater_enable_wifi_sta_task, "wifi_init", 4096, NULL, configMAX_PRIORITIES-1, NULL);
+
+    ESP_LOGI(TAG, "Init end");
 }

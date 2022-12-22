@@ -36,6 +36,8 @@
     "string_view": "c",
     "complex": "c",
     "stdio.h": "c",
-    "cstddef": "c"
+    "cstddef": "c",
+    "cstdint": "c",
+    "esp_sntp.h": "c"
   }
 }

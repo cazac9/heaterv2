@@ -128,8 +128,14 @@ static void display_uart_tx_task(void *arg)
 
                 case HEATERS_STATE:
                     dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
+                    vTaskDelay(pdMS_TO_TICKS(50));
+
                     dgus_set_var(DSUG_VAR_HSTATE2, h_st(msg.state.heatersState, 2));
+                    vTaskDelay(pdMS_TO_TICKS(50));
+
                     dgus_set_var(DSUG_VAR_HSTATE3, h_st(msg.state.heatersState, 3));
+                    vTaskDelay(pdMS_TO_TICKS(50));
+
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
                         h_st(msg.state.heatersState, 1),
                         h_st(msg.state.heatersState, 2),
@@ -139,23 +145,39 @@ static void display_uart_tx_task(void *arg)
                 case SYNC_CONFIG:
                     dgus_set_var(DGUS_VAR_T_TEMP, msg.state.targetTemp);
                     ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
+                    vTaskDelay(pdMS_TO_TICKS(50));
 
                     dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
                     ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
+                    vTaskDelay(pdMS_TO_TICKS(50));
+
+                    dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
+                    ESP_LOGI(TX_TAG, "isOn=%d", msg.state.isOn);
+                    vTaskDelay(pdMS_TO_TICKS(50));
 
                     dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
+                    vTaskDelay(pdMS_TO_TICKS(50));
+
                     dgus_set_var(DSUG_VAR_HSTATE2, h_st(msg.state.heatersState, 2));
+                    vTaskDelay(pdMS_TO_TICKS(50));
+
                     dgus_set_var(DSUG_VAR_HSTATE3, h_st(msg.state.heatersState, 3));
+                    vTaskDelay(pdMS_TO_TICKS(50));
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
                         h_st(msg.state.heatersState, 1),
                         h_st(msg.state.heatersState, 2),
                         h_st(msg.state.heatersState, 3));
                     break;
 
-                break;
+                case SYNC_TIME:
+                    uint32_t * time[2] = {msg.state.date, msg.state.time};
+                    dgus_set_var_n(DSUG_VAR_TIME, time, 2);
+                    ESP_LOGI(TX_TAG, "date= 0x %04x", msg.state.date);
+                    ESP_LOGI(TX_TAG, "time= 0x %04x", msg.state.time);
+                    break;
                 
                 default:
-                break;
+                    break;
             }
         }
     }

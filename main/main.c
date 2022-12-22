@@ -5,6 +5,7 @@
 #include "heaters.h"
 #include "globals.h"
 #include "wifi.h"
+#include "heater_time.h"
 
 #include "esp_log.h"
 
@@ -16,9 +17,9 @@ void app_main(void)
   // screen
   
     esp_log_level_set("*", ESP_LOG_NONE);
-    esp_log_level_set("CONFIG", ESP_LOG_INFO);
-    esp_log_level_set("HEATERS_SET", ESP_LOG_INFO);
-    esp_log_level_set("HEATERS", ESP_LOG_INFO);
+  //  esp_log_level_set("WIFI", ESP_LOG_INFO);
+    esp_log_level_set("TIME", ESP_LOG_INFO);
+   // esp_log_level_set("DISPLAY_TX_TASK", ESP_LOG_INFO);
     // esp_log_level_set("DSUG", ESP_LOG_INFO);
     
     heater_queues_init();
@@ -26,6 +27,7 @@ void app_main(void)
     heater_configuration_init();
 
     heater_enable_wifi_init();
+    heater_time_init();
 
     heater_waterflow_module_init();
     heater_termocouple_module_init();

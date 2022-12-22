@@ -7,6 +7,7 @@
 typedef struct {
   QueueHandle_t heaters_queue;
   QueueHandle_t display_queue;
+  QueueHandle_t time_queue;
 } heater_queues_t;
 
 
@@ -14,6 +15,8 @@ typedef struct {
   int currentTemp;
   int targetTemp;
   int waterflow;
+  int time;
+  int date;
   int isOn;
   uint32_t heatersState;
 } heater_state_t;
@@ -25,6 +28,8 @@ typedef enum {
   HEATERS_STATE,
   IS_ON,
   SYNC_CONFIG,
+  SYNC_TIME,
+  WIFI_CONNECTED,
   FULL_UPDATE
 } heater_action_t;
 
