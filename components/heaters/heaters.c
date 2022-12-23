@@ -79,9 +79,8 @@ static void heater_heaters_module_task(void *pvParams)
   esp_err_t ret;
   pid_ctrl_block_handle_t pid = (pid_ctrl_block_handle_t)pvParams;
   uint8_t powerPins[PIN_COUNT] = {HEATER_PIN_A, HEATER_PIN_B, HEATER_PIN_C};
-
-  int error = state.targetTemp - state.currentTemp;
   float result = 0;
+
   while (1)
   {
       // if (!state.isOn)
@@ -101,11 +100,13 @@ static void heater_heaters_module_task(void *pvParams)
         
       //   continue;
       // }
-    
+    int error = state.targetTemp - state.currentTemp;
+
+    ESP_LOGI(TAG, "TT: %d  CT: %d E: %d RES: %f", state.targetTemp, state.currentTemp, error, result);
+
     ret = pid_compute(pid, error, &result);
     ESP_ERROR_CHECK(ret);
-    ESP_LOGI(TAG, "CT: %d TT: %d RES: %d", state.currentTemp, state.targetTemp, (int)result);
-
+   
     if (result == 0)
     {
       for (uint8_t i = 0; i < PIN_COUNT; i++){
@@ -153,7 +154,7 @@ void heater_heaters_module_init()
       .min_output = 0,     
       .max_integral = 0,   
       .min_integral = 0,  
-      .cal_type = PID_CAL_TYPE_INCREMENTAL                
+      .cal_type = PID_CAL_TYPE_POSITIONAL                
     } 
   };
 

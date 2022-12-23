@@ -50,7 +50,7 @@ int dgus_recv_data(receive_package_callback callback)
     return 0;
   }
 
-  log_receive_data(rxBytes, data);
+  //log_receive_data(rxBytes, data);
 
   if (data[0] != HEADER0 || data[1] != HEADER1 )
   {
@@ -96,7 +96,7 @@ DGUS_RETURN send_data(enum command cmd, dgus_packet *p)
 {
   _prepare_header(&p->header, cmd, p->len);
   
-  log_send_data(p);
+  //log_send_data(p);
 
   int txBytes = uart_write_bytes(DISPLAY_UART, (char *)p, (p->len + p->header.len - 1));
 

@@ -18,7 +18,7 @@ void app_main(void)
   
     esp_log_level_set("*", ESP_LOG_NONE);
   //  esp_log_level_set("WIFI", ESP_LOG_INFO);
-    esp_log_level_set("TIME", ESP_LOG_INFO);
+    esp_log_level_set("HEATERS", ESP_LOG_INFO);
    // esp_log_level_set("DISPLAY_TX_TASK", ESP_LOG_INFO);
     // esp_log_level_set("DSUG", ESP_LOG_INFO);
     
