@@ -127,7 +127,7 @@ static void display_uart_tx_task(void *arg)
                     break;
 
                 case WIFI_CONNECTED:
-                    dgus_set_var(DSUC_VAR_WIFI, 1);
+                    dgus_set_var(DSUG_VAR_WIFI, 1);
                     ESP_LOGI(TX_TAG, "wifi connected");
                     break;
 
@@ -161,7 +161,7 @@ static void display_uart_tx_task(void *arg)
                     ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
+                    dgus_set_var(DSUG_VAR_IS_ON, msg.state.isOn);
                     ESP_LOGI(TX_TAG, "isOn=%d", msg.state.isOn);
                     vTaskDelay(pdMS_TO_TICKS(50));
 
