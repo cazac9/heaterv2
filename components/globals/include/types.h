@@ -18,6 +18,7 @@ typedef struct {
   int time;
   int date;
   int isOn;
+  int isHeating;
   uint32_t heatersState;
 } heater_state_t;
 
@@ -27,6 +28,7 @@ typedef enum {
   WATERFLOW_UPDATE,
   HEATERS_STATE,
   IS_ON,
+  IS_HEATING,
   SYNC_CONFIG,
   SYNC_TIME,
   WIFI_CONNECTED,

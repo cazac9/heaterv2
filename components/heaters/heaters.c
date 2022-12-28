@@ -81,8 +81,12 @@ static void heater_heaters_module_task(void *pvParams)
   uint8_t powerPins[PIN_COUNT] = {HEATER_PIN_A, HEATER_PIN_B, HEATER_PIN_C};
   float result = 0;
 
+  heater_queues_t g = heater_queues_get();
   while (1)
   {
+      heater_state_message_t msg = {
+        .action = IS_HEATING
+      };
       // if (!state.isOn)
       // {
       //   ESP_LOGI(TAG, "Heater switched off");
@@ -112,7 +116,9 @@ static void heater_heaters_module_task(void *pvParams)
       for (uint8_t i = 0; i < PIN_COUNT; i++){
         gpio_set_level(powerPins[i], false);
       }
-
+      
+      msg.state.isHeating = 0;
+      xQueueSendToBack(g.display_queue, &msg, 0);
       ESP_LOGI(TAG, "Cooling...");
       vTaskDelay(pdMS_TO_TICKS(5000));
       continue;
@@ -122,6 +128,8 @@ static void heater_heaters_module_task(void *pvParams)
       gpio_set_level(powerPins[i], h_state(state.heatersState, i - 1));
     }
 
+    msg.state.isHeating = 0;
+    xQueueSendToBack(g.display_queue, &msg, 0);
     ESP_LOGI(TAG, "heating for %f seconds", result / 1000);
     vTaskDelay(pdMS_TO_TICKS(result));
 

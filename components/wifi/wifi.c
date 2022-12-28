@@ -129,6 +129,7 @@ void heater_enable_wifi_sta_task()
     };
     heater_queues_t g = heater_queues_get();
     xQueueSendToBack(g.time_queue, &msg, 0);
+    xQueueSendToBack(g.display_queue, &msg, 0);
 
     vTaskDelete(NULL);
 }

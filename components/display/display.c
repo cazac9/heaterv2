@@ -126,6 +126,16 @@ static void display_uart_tx_task(void *arg)
                     ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
                     break;
 
+                case WIFI_CONNECTED:
+                    dgus_set_var(DSUC_VAR_WIFI, 1);
+                    ESP_LOGI(TX_TAG, "wifi connected");
+                    break;
+
+                case IS_HEATING:
+                    dgus_set_var(DSUG_VAR_IS_HEATING, msg.state.isHeating);
+                    ESP_LOGI(TX_TAG,  "isHeating=%d", msg.state.isHeating);
+                    break;
+
                 case HEATERS_STATE:
                     dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
                     vTaskDelay(pdMS_TO_TICKS(50));
