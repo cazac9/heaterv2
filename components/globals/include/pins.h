@@ -21,4 +21,9 @@
 
 #define WIFI_LED_PIN  GPIO_NUM_2
 
+
+#define JTAG_TMS  GPIO_NUM_14
+#define JTAG_TCK  GPIO_NUM_13
+#define JTAG_TDO  GPIO_NUM_15
+#define JTAG_TDI  GPIO_NUM_12
 #endif 
