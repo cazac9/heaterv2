@@ -39,16 +39,16 @@ static void heater_sync_time_task(void *arg)
 
     localtime(&timeinfo);
     uint32_t date = 0;
+    date = date << 8 | 0x5A;
+    date = date << 8 | 0xA5;
     date = date << 8 | (timeinfo.tm_year - 100);
-    date = date << 8 | timeinfo.tm_mon;
-    date = date << 8 | timeinfo.tm_mday;
-    date = date << 8 | timeinfo.tm_wday;
+    date = date << 8 | (timeinfo.tm_mon + 1);
 
     uint32_t localTime = 0;
+    localTime = localTime << 8 | timeinfo.tm_mday;
     localTime = localTime << 8 | timeinfo.tm_hour;
     localTime = localTime << 8 | timeinfo.tm_min;
     localTime = localTime << 8 | timeinfo.tm_sec;
-    localTime = localTime << 8;
 
     printf("%08x ", (int)date);
     printf("%08x\n", (int)localTime);

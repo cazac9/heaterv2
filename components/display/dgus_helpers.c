@@ -13,17 +13,6 @@
 
 #define TAG "DSUG"
 
-void log_receive_data(int rxBytes, uint8_t *data){
-  ESP_LOGI(TAG, "Got %d bytes", rxBytes);
-  
-  printf("Received ");
-  for (size_t i = 0; i < rxBytes; i++)
-  {
-    printf("%02x ", data[i]);
-  }
-  printf("\n");
-}
-
 void log_send_data(dgus_packet *p){
   printf("Send 0x");
   for (int i = 0; i < sizeof(p->header); i++)
@@ -50,38 +39,39 @@ int dgus_recv_data(receive_package_callback callback)
     return 0;
   }
 
-  //log_receive_data(rxBytes, data);
+    int i = 0;
+    while (i < rxBytes) {  
+      if (data[i] == HEADER0 && data[i+1] == HEADER1) {
+          size_t packet_len = data[i+2];
+          uint8_t command_code = data[i+3];
+      
+          if (command_code == DGUS_CMD_VAR_W) { 
+              if (i + packet_len + 3 <= rxBytes && data[i+4] == 'O' && data[i+5] == 'K') {
+                  printf("Command OK\n");
+              } else {
+                  printf("Broken packet\n");
+              }
+          }else if (command_code == DGUS_CMD_VAR_R) { 
+              if (i + packet_len + 3 <= rxBytes ) {
+                uint16_t addr = (data[4] << 8) + data[5];
+                uint16_t value = (data[6] << 8) + data[7];
 
-  if (data[0] != HEADER0 || data[1] != HEADER1 )
-  {
-    free(data);
-    ESP_LOGE(TAG, "Incorrect package header");
-    return -1;
-  }
+                if (callback)
+                  callback(command_code, addr, value);
 
-  uint8_t len = data[2];
-  uint8_t cmd = data[3];
- 
-  uint8_t bytesSize = len - 1;
+                free(data);
+              } else {
+                  printf("Broken packet\n");
+              }
+          }
+          i += packet_len + 3;
+      } else {
+          printf("%02x\n", data[i]);
+          i++;
+      }
+    }
 
-  if (bytesSize == 2 && cmd == DGUS_CMD_VAR_W && data[4] == 'O' && data[5] == 'K')
-  {
-    ESP_LOGI(TAG, "%02x  - OK", cmd);
-    return bytesSize; 
-  }
-  
-
-// handle different response size
-  uint16_t addr = (data[4] << 8) + data[5];
-  uint16_t value = (data[6] << 8) + data[7];
- // printf("%04x\n", value);
-
-  if (callback)
-    callback(cmd, addr, value);
-
-  free(data);
-
-  return bytesSize; 
+  return rxBytes;
 }
 
 static void _prepare_header(dgus_packet_header *header, uint16_t cmd, uint16_t len)
