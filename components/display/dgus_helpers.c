@@ -54,7 +54,7 @@ int dgus_recv_data(receive_package_callback callback)
           }else if (command_code == DGUS_CMD_VAR_R) { 
               if (i + packet_len + 3 <= rxBytes ) {
                 uint16_t addr = (data[4] << 8) + data[5];
-                uint16_t value = (data[6] << 8) + data[7];
+                uint16_t value = (data[7] << 8) + data[8];
 
                 if (callback)
                   callback(command_code, addr, value);
