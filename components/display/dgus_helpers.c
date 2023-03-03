@@ -44,25 +44,38 @@ int dgus_recv_data(receive_package_callback callback)
       if (data[i] == HEADER0 && data[i+1] == HEADER1) {
           size_t packet_len = data[i+2];
           uint8_t command_code = data[i+3];
-      
-          if (command_code == DGUS_CMD_VAR_W) { 
+
+          switch (command_code)
+          {
+            case DGUS_CMD_VAR_W: {
               if (i + packet_len + 3 <= rxBytes && data[i+4] == 'O' && data[i+5] == 'K') {
                   printf("Command OK\n");
               } else {
                   printf("Broken packet\n");
               }
-          }else if (command_code == DGUS_CMD_VAR_R) { 
+
+              break;
+            }
+             
+            case DGUS_CMD_VAR_R: {
               if (i + packet_len + 3 <= rxBytes ) {
-                uint16_t addr = (data[4] << 8) + data[5];
-                uint16_t value = (data[7] << 8) + data[8];
+                  uint16_t addr = (data[4] << 8) + data[5];
+                  uint16_t value = (data[7] << 8) + data[8];
 
-                if (callback)
-                  callback(command_code, addr, value);
+                  if (callback)
+                    callback(command_code, addr, value);
 
-                free(data);
-              } else {
-                  printf("Broken packet\n");
-              }
+                  free(data);
+                } else {
+                    printf("Broken packet\n");
+                }
+
+              break;
+            }
+              
+          default:
+            printf("Something interesting\n");
+            break;
           }
           i += packet_len + 3;
       } else {

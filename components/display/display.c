@@ -60,15 +60,15 @@ void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
             xQueueSendToBack(g.heaters_queue, &msg, 0);
             break;
         
-        case DSUG_VAR_HSTATE1: {
+        case DSUG_VAR_HSTATE1_UPDATED: {
             update_h_state(0, value);
             break;
         }
-        case DSUG_VAR_HSTATE2: {
+        case DSUG_VAR_HSTATE2_UPDATED: {
             update_h_state(1, value);
             break;
         }
-        case DSUG_VAR_HSTATE3: {
+        case DSUG_VAR_HSTATE3_UPDATED: {
             update_h_state(2, value);
             break;
         }
@@ -137,13 +137,13 @@ static void display_uart_tx_task(void *arg)
                     break;
 
                 case HEATERS_STATE:
-                    dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE1_SET, h_st(msg.state.heatersState, 1));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE2, h_st(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE2_SET, h_st(msg.state.heatersState, 2));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE3, h_st(msg.state.heatersState, 3));
+                    dgus_set_var(DSUG_VAR_HSTATE3_SET, h_st(msg.state.heatersState, 3));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
@@ -165,13 +165,13 @@ static void display_uart_tx_task(void *arg)
                     ESP_LOGI(TX_TAG, "isOn=%d", msg.state.isOn);
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE1, h_st(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE1_SET, h_st(msg.state.heatersState, 1));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE2, h_st(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE2_SET, h_st(msg.state.heatersState, 2));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE3, h_st(msg.state.heatersState, 3));
+                    dgus_set_var(DSUG_VAR_HSTATE3_SET, h_st(msg.state.heatersState, 3));
                     vTaskDelay(pdMS_TO_TICKS(50));
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
                         h_st(msg.state.heatersState, 1),
