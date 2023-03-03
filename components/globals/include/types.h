@@ -19,6 +19,7 @@ typedef struct {
   int date;
   int isOn;
   int isHeating;
+  int isWifiConnected;
   uint32_t heatersState;
 } heater_state_t;
 

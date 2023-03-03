@@ -49,6 +49,15 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 void heater_enable_wifi_sta_task()
 {
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+
+    heater_state_message_t msg = {
+        .action = WIFI_CONNECTED,
+        .state.isWifiConnected = 0
+    };
+    heater_queues_t g = heater_queues_get();
+    xQueueSendToBack(g.display_queue, &msg, 0);
+
+
     esp_err_t ret;
     esp_event_handler_instance_t instance_any_id;
     esp_event_handler_instance_t instance_got_ip;
@@ -109,6 +118,15 @@ void heater_enable_wifi_sta_task()
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
                  WIFI_SSID, WIFI_PASS);
+                 
+        heater_state_message_t msg = {
+            .action = WIFI_CONNECTED,
+            .state.isWifiConnected = 1
+        };
+
+        heater_queues_t g = heater_queues_get();
+        xQueueSendToBack(g.time_queue, &msg, 0);
+        xQueueSendToBack(g.display_queue, &msg, 0);
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
                  WIFI_SSID, WIFI_PASS);
@@ -123,13 +141,6 @@ void heater_enable_wifi_sta_task()
     ESP_ERROR_CHECK(ret);
 
     vEventGroupDelete(s_wifi_event_group);
-
-    heater_state_message_t msg = {
-        .action = WIFI_CONNECTED
-    };
-    heater_queues_t g = heater_queues_get();
-    xQueueSendToBack(g.time_queue, &msg, 0);
-    xQueueSendToBack(g.display_queue, &msg, 0);
 
     vTaskDelete(NULL);
 }

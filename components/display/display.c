@@ -127,7 +127,7 @@ static void display_uart_tx_task(void *arg)
                     break;
 
                 case WIFI_CONNECTED:
-                    dgus_set_var(DSUG_VAR_WIFI, 1);
+                    dgus_set_var(DSUG_VAR_WIFI, msg.state.isWifiConnected);
                     ESP_LOGI(TX_TAG, "wifi connected");
                     break;
 

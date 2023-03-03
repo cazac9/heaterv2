@@ -50,9 +50,6 @@ static void heater_sync_time_task(void *arg)
     localTime = localTime << 8 | timeinfo.tm_min;
     localTime = localTime << 8 | timeinfo.tm_sec;
 
-    printf("%08x ", (int)date);
-    printf("%08x\n", (int)localTime);
-
     heater_state_message_t msg = {
       .action = SYNC_TIME,
       .state = {

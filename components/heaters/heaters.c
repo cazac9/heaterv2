@@ -125,10 +125,11 @@ static void heater_heaters_module_task(void *pvParams)
     }
     
     for (uint8_t i = 0; i < PIN_COUNT; i++){
-      gpio_set_level(powerPins[i], h_state(state.heatersState, i - 1));
+      int st = h_state(state.heatersState, i + 1);
+      gpio_set_level(powerPins[i], st);
+      msg.state.isHeating = msg.state.isHeating || st;
     }
 
-    msg.state.isHeating = 0;
     xQueueSendToBack(g.display_queue, &msg, 0);
     ESP_LOGI(TAG, "heating for %f seconds", result / 1000);
     vTaskDelay(pdMS_TO_TICKS(result));
