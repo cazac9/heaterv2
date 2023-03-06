@@ -31,7 +31,7 @@ void log_send_data(dgus_packet *p){
 
 int dgus_recv_data(receive_package_callback callback)
 {
-  uint8_t *data = (uint8_t *)malloc(DISPLAY_RX_BUF_SIZE + 1);
+  char *data = (char *)malloc(DISPLAY_RX_BUF_SIZE + 1);
 
   const int rxBytes = uart_read_bytes(DISPLAY_UART, data, DISPLAY_RX_BUF_SIZE, pdMS_TO_TICKS(100));
   if (rxBytes == 0 || data == NULL){
@@ -65,7 +65,6 @@ int dgus_recv_data(receive_package_callback callback)
                   if (callback)
                     callback(command_code, addr, value);
 
-                  free(data);
                 } else {
                     printf("Broken packet\n");
                 }
@@ -84,6 +83,8 @@ int dgus_recv_data(receive_package_callback callback)
       }
     }
 
+  free(data);
+  
   return rxBytes;
 }
 

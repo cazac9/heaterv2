@@ -25,7 +25,7 @@ int replace_byte(int index, int value, uint8_t replaceByte)
 void update_h_state(int index){
     heater_queues_t g = heater_queues_get();
     heater_config_t config = heater_configuration_get();
-    int currentState = config.heatersState;
+    int currentState = h_st(config.heatersState, index);
     printf("old state: %06x",  config.heatersState);
     int newState = replace_byte(index, config.heatersState, !currentState);
     printf("new state: %06x",  newState);
@@ -219,8 +219,8 @@ void heater_display_module_init()
     ret = uart_set_pin(DISPLAY_UART, DISPLAY_TXD_PIN, DISPLAY_RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     ESP_ERROR_CHECK(ret);
 
-    xTaskCreate(display_uart_rx_task, "display_uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES-1, NULL);
-    xTaskCreate(display_uart_tx_task, "display_uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES-2, NULL);
+    xTaskCreate(display_uart_rx_task, "display_uart_rx_task", 1024 * 4, NULL, configMAX_PRIORITIES-1, NULL);
+    xTaskCreate(display_uart_tx_task, "display_uart_tx_task", 1024 * 4, NULL, configMAX_PRIORITIES-2, NULL);
 
     ESP_LOGI(TAG, "init started");
 }
