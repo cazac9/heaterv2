@@ -13,10 +13,8 @@
 #define TAG "DISPLAY"
 #define RX_TAG "DISPLAY_RX_TASK"
 #define TX_TAG "DISPLAY_TX_TASK"
-heater_state_t displayState = {};
-
 uint8_t h_st(int stateConfig, int heater) {
-  return (stateConfig >> (8*(heater-1))) & 0xff;
+  return (stateConfig >> (8 * heater)) & 0xff;
 }
 
 int replace_byte(int index, int value, uint8_t replaceByte)
@@ -25,11 +23,12 @@ int replace_byte(int index, int value, uint8_t replaceByte)
 }
 
 void update_h_state(int index){
-    int currentState = h_st(index, displayState.heatersState);
-
     heater_queues_t g = heater_queues_get();
     heater_config_t config = heater_configuration_get();
+    int currentState = config.heatersState;
+    printf("old state: %06x",  config.heatersState);
     int newState = replace_byte(index, config.heatersState, !currentState);
+    printf("new state: %06x",  newState);
     config.heatersState = newState;
     heater_configuration_set(config);
 
@@ -115,87 +114,74 @@ static void display_uart_tx_task(void *arg)
             switch (msg.action)
             {
                 case C_TEMP_UPDATE:
-                    displayState.currentTemp =  msg.state.currentTemp;
                     dgus_set_var(DGUS_VAR_C_TEMP, msg.state.currentTemp);
                     ESP_LOGI(TX_TAG, "currentTemp=%d", msg.state.currentTemp);
                     break;
 
                 case T_TEMP_UPDATE:
-                    displayState.targetTemp =  msg.state.targetTemp;
                     dgus_set_var(DGUS_VAR_T_TEMP, msg.state.targetTemp);
                     ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
                     break;
 
                 case WATERFLOW_UPDATE:
-                    displayState.waterflow =  msg.state.waterflow;
                     dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
                     ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
                     break;
 
                 case WIFI_CONNECTED:
-                    displayState.isWifiConnected =  msg.state.isWifiConnected;
                     dgus_set_var(DSUG_VAR_WIFI, msg.state.isWifiConnected);
                     ESP_LOGI(TX_TAG, "wifi connected");
                     break;
 
                 case IS_HEATING:
-                    displayState.isHeating =  msg.state.isHeating;
                     dgus_set_var(DSUG_VAR_IS_HEATING, msg.state.isHeating);
                     ESP_LOGI(TX_TAG,  "isHeating=%d", msg.state.isHeating);
                     break;
 
                 case HEATERS_STATE:
-                    displayState.heatersState =  msg.state.heatersState;
-                    dgus_set_var(DSUG_VAR_HSTATE1_SET, h_st(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE1_SET, h_st(msg.state.heatersState, 0));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE2_SET, h_st(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE2_SET, h_st(msg.state.heatersState, 1));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE3_SET, h_st(msg.state.heatersState, 3));
+                    dgus_set_var(DSUG_VAR_HSTATE3_SET, h_st(msg.state.heatersState, 2));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
+                        h_st(msg.state.heatersState, 0),
                         h_st(msg.state.heatersState, 1),
-                        h_st(msg.state.heatersState, 2),
-                        h_st(msg.state.heatersState, 3));
+                        h_st(msg.state.heatersState, 2));
                     break;
 
                 case SYNC_CONFIG:
-                    displayState.targetTemp =  msg.state.targetTemp;
                     dgus_set_var(DGUS_VAR_T_TEMP, msg.state.targetTemp);
                     ESP_LOGI(TX_TAG, "targetTemp=%d", msg.state.targetTemp);
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    displayState.waterflow =  msg.state.waterflow;
                     dgus_set_var(DSUG_VAR_WTRFLOW, msg.state.waterflow);
                     ESP_LOGI(TX_TAG, "waterflow=%d", msg.state.waterflow);
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    displayState.isOn =  msg.state.isOn;
                     dgus_set_var(DSUG_VAR_IS_ON, msg.state.isOn);
                     ESP_LOGI(TX_TAG, "isOn=%d", msg.state.isOn);
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    displayState.heatersState =  msg.state.heatersState;
-                    dgus_set_var(DSUG_VAR_HSTATE1_SET, h_st(msg.state.heatersState, 1));
+                    dgus_set_var(DSUG_VAR_HSTATE1_SET, h_st(msg.state.heatersState, 0));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE2_SET, h_st(msg.state.heatersState, 2));
+                    dgus_set_var(DSUG_VAR_HSTATE2_SET, h_st(msg.state.heatersState, 1));
                     vTaskDelay(pdMS_TO_TICKS(50));
 
-                    dgus_set_var(DSUG_VAR_HSTATE3_SET, h_st(msg.state.heatersState, 3));
+                    dgus_set_var(DSUG_VAR_HSTATE3_SET, h_st(msg.state.heatersState, 2));
                     vTaskDelay(pdMS_TO_TICKS(50));
                     ESP_LOGI(TX_TAG, "heatersState= 0x %02x %02x %02x",
+                        h_st(msg.state.heatersState, 0),
                         h_st(msg.state.heatersState, 1),
-                        h_st(msg.state.heatersState, 2),
-                        h_st(msg.state.heatersState, 3));
+                        h_st(msg.state.heatersState, 2));
                     break;
 
                 case SYNC_TIME:
-                    displayState.date =  msg.state.date;
-                    displayState.time =  msg.state.time;
-
                     uint32_t * time[2] = {msg.state.date, msg.state.time};
                     dgus_set_var_n(DSUG_VAR_TIME, time, 2);
                     ESP_LOGI(TX_TAG, "date= 0x %04x", msg.state.date);

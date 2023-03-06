@@ -49,7 +49,7 @@ int dgus_recv_data(receive_package_callback callback)
           {
             case DGUS_CMD_VAR_W: {
               if (i + packet_len + 3 <= rxBytes && data[i+4] == 'O' && data[i+5] == 'K') {
-                  printf("Command OK\n");
+                  //printf("Command OK\n");
               } else {
                   printf("Broken packet\n");
               }
@@ -59,8 +59,8 @@ int dgus_recv_data(receive_package_callback callback)
              
             case DGUS_CMD_VAR_R: {
               if (i + packet_len + 3 <= rxBytes ) {
-                  uint16_t addr = (data[4] << 8) + data[5];
-                  uint16_t value = (data[7] << 8) + data[8];
+                  uint16_t addr = (data[i + 4] << 8) + data[i + 5];
+                  uint16_t value = (data[i + 7] << 8) + data[i + 8];
 
                   if (callback)
                     callback(command_code, addr, value);

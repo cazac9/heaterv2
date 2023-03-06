@@ -19,7 +19,7 @@ heater_config_t heater_configuration_get()
   esp_err_t ret = nvs_open(PARTITION_NAME, NVS_READWRITE, &_nvs_handle);
   ESP_ERROR_CHECK(ret);
 
-  size_t size = sizeof(&config);
+  size_t size = sizeof(heater_config_t);
   ret = nvs_get_blob(_nvs_handle, CONFIG_BLOB, &config, &size);
   if(ret == ESP_ERR_NVS_NOT_FOUND)
   {
@@ -28,6 +28,14 @@ heater_config_t heater_configuration_get()
     config.heatersState = 0;
     heater_configuration_set(config);
   }
+
+  if (ret != 0)
+  {
+    char* errorString = esp_err_to_name(ret);
+    printf(errorString);
+  }
+
+  nvs_close(_nvs_handle);
 
   return config;
 }
@@ -58,12 +66,14 @@ void heater_configuration_set(heater_config_t config)
   esp_err_t ret = nvs_open(PARTITION_NAME, NVS_READWRITE, &_nvs_handle);
   ESP_ERROR_CHECK(ret);
 
-  size_t size = sizeof(&config);
+  size_t size = sizeof(heater_config_t);
   ret = nvs_set_blob(_nvs_handle, CONFIG_BLOB, &config, size);
   ESP_ERROR_CHECK(ret);
 
   ret = nvs_commit(_nvs_handle);
   ESP_ERROR_CHECK(ret);
+
+  nvs_close(_nvs_handle);
 }
 
 void heater_configuration_init()
