@@ -38,6 +38,11 @@ static void heater_sync_task(void *pvParams)
           ESP_LOGI(TAG_SET_VALUES, "targetTemp=%d", state.targetTemp);
           break;
 
+        case IS_ON:
+          state.isOn = isOn;
+          ESP_LOGI(TAG_SET_VALUES, "isOn=%d", state.isOn);
+          break;
+
         case WATERFLOW_UPDATE:
           state.waterflow = msg.state.waterflow;
           ESP_LOGI(TAG_SET_VALUES, "waterflow=%d", state.waterflow);

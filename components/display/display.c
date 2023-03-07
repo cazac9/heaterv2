@@ -80,14 +80,14 @@ void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
             break;
         }
         case DSUG_VAR_IS_ON: {
+            heater_config_t config = heater_configuration_get();
+            config.isOn = !config.isOn;
+            heater_configuration_set(config);
+
             heater_state_message_t msg = {
                 .action = IS_ON,
-                .state.isOn = value
+                .state.isOn = config.isOn
             };
-
-            heater_config_t config = heater_configuration_get();
-            config.isOn = value;
-            heater_configuration_set(config);
             
             xQueueSendToBack(g.heaters_queue, &msg, 0);
             break;
