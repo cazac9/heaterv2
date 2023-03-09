@@ -39,7 +39,7 @@ static void heater_sync_task(void *pvParams)
           break;
 
         case IS_ON:
-          state.isOn = isOn;
+          state.isOn = msg.state.isOn;
           ESP_LOGI(TAG_SET_VALUES, "isOn=%d", state.isOn);
           break;
 

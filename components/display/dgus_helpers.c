@@ -29,10 +29,8 @@ void log_send_data(dgus_packet *p){
   printf("\n");
 }
 
-int dgus_recv_data(receive_package_callback callback)
+int dgus_recv_data(receive_package_callback callback, char *data )
 {
-  char *data = (char *)malloc(DISPLAY_RX_BUF_SIZE + 1);
-
   const int rxBytes = uart_read_bytes(DISPLAY_UART, data, DISPLAY_RX_BUF_SIZE, pdMS_TO_TICKS(100));
   if (rxBytes == 0 || data == NULL){
     vTaskDelay(pdMS_TO_TICKS(50));
@@ -83,8 +81,6 @@ int dgus_recv_data(receive_package_callback callback)
       }
     }
 
-  free(data);
-  
   return rxBytes;
 }
 

@@ -100,8 +100,10 @@ void receive_data_callback(enum command cmd, uint16_t addr, uint16_t value) {
 
 static void display_uart_rx_task(void *arg)
 {
+    char * data = (char *)malloc(DISPLAY_RX_BUF_SIZE + 1);
+
     while (1)
-        dgus_recv_data(receive_data_callback);
+        dgus_recv_data(receive_data_callback, data);
 }
 
 static void display_uart_tx_task(void *arg)

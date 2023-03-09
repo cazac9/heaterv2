@@ -16,11 +16,11 @@ void app_main(void)
   // schedule
   // screen
   
-  //   esp_log_level_set("*", ESP_LOG_NONE);
+    // esp_log_level_set("*", ESP_LOG_NONE);
   //  esp_log_level_set("WIFI", ESP_LOG_INFO);
   //   esp_log_level_set("WATERFLOW", ESP_LOG_INFO);
-  //   esp_log_level_set("DISPLAY_TX_TASK", ESP_LOG_INFO);
-  //    esp_log_level_set("DSUG", ESP_LOG_INFO);
+  //   esp_log_level_set("DISPLAY_RX_TASK", ESP_LOG_INFO);
+  //   esp_log_level_set("DSUG", ESP_LOG_INFO);
     
     heater_queues_init();
 
